@@ -12,24 +12,25 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleRegister = async () => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+  const handleSignup = async () => {
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: name,
+      },
+    },
+  });
 
-    if (error) {
-      alert(error.message);
-    } else {
-      // Insert profile
-      await supabase.from("profiles").insert([
-        { id: data.user.id, full_name: fullName },
-      ]);
+  if (error) {
+    alert(error.message);
+  } else {
+    alert("Signup successful! Please login.");
+    router.push("/login");
+  }
+};
 
-      alert("Account created! Please check your email.");
-      router.push("/login");
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
