@@ -30,6 +30,10 @@ export default function RegisterPage() {
     router.push("/login");
   }
 };
+  const handleRegister = async (e) => {
+  e.preventDefault();
+  // temporary empty handler
+};
 
 
   return (
