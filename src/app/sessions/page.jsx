@@ -14,21 +14,26 @@ export default function SessionsPage() {
       if (!user) return;
       setCurrentUserId(user.id);
 
-      const { data, error } = await supabase
-        .from("sessions")
-        .select(`
-          id,
-          status,
-          session_date,
-          session_time,
-          skills(skill_name),
-          tutor:profiles!sessions_tutor_id_fkey(full_name),
-          learner_id,
-          tutor_id
-        `)
-        .or(`learner_id.eq.${user.id},tutor_id.eq.${user.id}`)
-        .order("created_at", { ascending: false });
-
+    const { data, error } = await supabase
+  .from("sessions")
+  .select(`
+    id,
+    status,
+    session_date,
+    session_time,
+    learner_id,
+    tutor_id,
+    skill_id,
+    skills:skills!sessions_skill_id_fkey (
+      skill_name
+    ),
+    tutor:profiles!sessions_tutor_id_fkey (
+      full_name
+    )
+  `)
+  .or(`learner_id.eq.${user.id},tutor_id.eq.${user.id}`)
+  .order("created_at", { ascending: false });
+  
       if (!error) setSessions(data);
     };
 
