@@ -17,11 +17,12 @@ export default function SkillsPage() {
       const { data, error } = await supabase
         .from("skills")
         .select(`
-          id,
-          skill_name,
-          user_id,
-          profiles:profiles!skills_user_id_fkey(full_name)
-        `)
+  id,
+  skill_name,
+  user_id,
+  profiles(full_name)
+`)
+
         .order("created_at", { ascending: false });
 
       if (error) {
