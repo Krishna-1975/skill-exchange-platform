@@ -12,33 +12,54 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleSignup = async () => {
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: name,
-      },
-    },
-  });
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-  if (error) {
-    alert(error.message);
-  } else {
+    if (!fullName || !email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    // 1️⃣ SIGN UP USER
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    const user = data.user;
+
+    // 2️⃣ CREATE PROFILE ROW (CRITICAL)
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .insert([
+        {
+          id: user.id,          // MUST match auth.users.id
+          full_name: fullName,
+          about: null,
+        },
+      ]);
+
+    if (profileError) {
+      console.error(profileError);
+      alert("Profile creation failed");
+      return;
+    }
+
     alert("Signup successful! Please login.");
     router.push("/login");
-  }
-};
-  const handleRegister = async (e) => {
-  e.preventDefault();
-  // temporary empty handler
-};
-
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-lg p-8 space-y-6">
+      <form
+        onSubmit={handleRegister}
+        className="w-full max-w-md bg-card border border-border rounded-2xl shadow-lg p-8 space-y-6"
+      >
         <h1 className="text-3xl font-bold text-center">Create Account</h1>
 
         <input
@@ -75,7 +96,7 @@ export default function RegisterPage() {
         </div>
 
         <button
-          onClick={handleRegister}
+          type="submit"
           className="w-full py-3 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:opacity-90"
         >
           Sign Up
@@ -87,7 +108,7 @@ export default function RegisterPage() {
             Login
           </Link>
         </p>
-      </div>
+      </form>
     </div>
   );
 }
