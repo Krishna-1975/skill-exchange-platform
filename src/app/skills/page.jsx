@@ -12,32 +12,35 @@ export default function SkillsPage() {
 
   const router = useRouter();
 
+  
+  const fetchSkills = async () => {
+    const { data, error } = await supabase
+      .from("skills")
+      .select(`
+        id,
+        skill_name,
+        user_id,
+        profiles:profiles!skills_user_id_fkey(full_name)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log(error);
+    } else {
+      setSkills(data || []);
+    }
+  };
+
+  
   useEffect(() => {
-    const fetchSkills = async () => {
-      const { data, error } = await supabase
-        .from("skills")
-        .select(`
-  id,
-  skill_name,
-  user_id,
-  profiles(full_name)
-`)
-
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.log(error);
-      } else {
-        setSkills(data);
-      }
-    };
-
     fetchSkills();
   }, []);
 
-  // 📅 MANUAL BOOKING ONLY
+  
   const handleBook = async (skill) => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       alert("You must be logged in");
@@ -57,7 +60,7 @@ export default function SkillsPage() {
         skill_id: skill.id,
         session_date: selectedDate,
         session_time: selectedTime,
-        status: "pending"
+        status: "pending",
       },
     ]);
 
@@ -90,7 +93,7 @@ export default function SkillsPage() {
           />
         </div>
 
-        {skills.length === 0 ? (
+        {filteredSkills.length === 0 ? (
           <p>No skills added yet.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
