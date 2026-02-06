@@ -20,33 +20,18 @@ export default function RegisterPage() {
       return;
     }
 
-    // 1️⃣ SIGN UP USER
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          full_name: fullName, 
+        },
+      },
     });
 
     if (error) {
       alert(error.message);
-      return;
-    }
-
-    const user = data.user;
-
-    // 2️⃣ CREATE PROFILE ROW (CRITICAL)
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .insert([
-        {
-          id: user.id,          // MUST match auth.users.id
-          full_name: fullName,
-          about: null,
-        },
-      ]);
-
-    if (profileError) {
-      console.error(profileError);
-      alert("Profile creation failed");
       return;
     }
 
